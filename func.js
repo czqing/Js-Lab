@@ -33,3 +33,71 @@ var isNumber = function isNumber(value) {
 var is_array = function (value) {
   return Object.prototype.toString.apply(value) === '[object Array]';
 };
+
+Function.prototype.method = function (name, func) {
+  if (!this.prototype[name]) {
+    this.prototype[name] = func;
+  }
+  return this;
+};
+
+Number.method('integer', function () {
+  return Math[this < 0 ? 'ceil' : 'floor'](this);
+});
+
+String.method('trim', function () {
+  return this.replace(/^\s+|s+$/g, '');
+});
+
+//定义walk_the_DOM函数，从某个指定的节点开始，按HTML源码中的顺序
+//访问该树的每个节点
+var walk_the_DOM = function walk(node, func) {
+  func(node);
+  node = node.firstChild;
+  while (node) {
+    walk(node, func);
+    node = node.nextSiblings;
+  }
+};
+
+String.method('deentityify', function () {
+  //字符实体表
+  var entity = {
+    quot: '"',
+    lt: '<',
+    gt: '>'
+  };
+
+  //返回deentityify方法
+  return function () {
+    //这才是deentityify方法，调用字符串的replace方法
+    return function () {
+      return this.replace(/&([^&;]+);/g,
+        function (a, b) {
+          var r = entity[b];
+          return typeof r === 'string' ? r : a;
+        }
+      );
+    };
+  };
+}());
+
+var memoizer = function (memo, formula) {
+  var recur = function (n) {
+    var result = memo[n];
+    if (typeof result !== 'number') {
+      result = formula (recur, n);
+      memo[n] = result;
+    }
+    return result;
+  };
+  return recur;
+};
+
+var fibonacci = memoizer([0, 1], function (recur, n) {
+  return recur (n - 1) + recur (n - 2);
+});
+
+var factorial = memoizer([1, 1], function (recur, n) {
+  return n * recur (n - 1);
+});
