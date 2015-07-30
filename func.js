@@ -71,14 +71,12 @@ String.method('deentityify', function () {
   //返回deentityify方法
   return function () {
     //这才是deentityify方法，调用字符串的replace方法
-    return function () {
-      return this.replace(/&([^&;]+);/g,
-        function (a, b) {
-          var r = entity[b];
-          return typeof r === 'string' ? r : a;
-        }
-      );
-    };
+    return this.replace(/&([^&;]+);/g,
+      function (a, b) {
+        var r = entity[b];
+        return typeof r === 'string' ? r : a;
+      }
+    );
   };
 }());
 
@@ -101,3 +99,51 @@ var fibonacci = memoizer([0, 1], function (recur, n) {
 var factorial = memoizer([1, 1], function (recur, n) {
   return n * recur (n - 1);
 });
+
+var eventuality = function (that) {
+  var registry = {};
+  that.fire = function (event) {
+    //在一个对象上触发一个事件。该事件可以是一个包含事件名称的字符串，
+    //或者是一个拥有包含事件名称的type属性的对象
+    //通过'on'方法注册的事件处理程序中匹配事件名称的函数将被调用
+    var array, func, handler, i,
+      type = typeof event === 'string' ? event : event.type;
+
+    //如果这个事件存在一组事件处理程序，则遍历并按顺序依次执行
+    if (registry.hasOwnProperty(type)) {
+      array = registry[type];
+      for (i = 0; i < array.length; i += 1) {
+        handler = array[i];
+        //每个处理程序包含一个方法和一个可选的参数
+        //如果该方法是一个字符串形式的名字，则寻找该函数
+        func = handler.method;
+        if (typeof func === 'string') {
+          func = this[func];
+        }
+        //调用一个处理程序。如果该条目包含参数，则传递它过去；否则，传递该事件对象
+        func.apply(this,
+          handler.parameters || [event]);
+      }
+    }
+    return this;
+  };
+
+  that.on = function (type, method, parameters) {
+    //注册一个事件，构造一条处理程序条目，将它插入到处理程序数组中，
+    //如果这种类型的事件还不存在，就构造一个
+    var handler = {
+      method: method,
+      parameters: parameters
+    };
+    if (registry.hasOwnProperty(type)) {
+      registry[type].push(handler);
+    } else {
+      registry[type] = handler;
+    }
+    return this;
+  };
+
+  return that;
+};
+
+var parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
