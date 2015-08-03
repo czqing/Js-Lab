@@ -147,3 +147,9 @@ var eventuality = function (that) {
 };
 
 var parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+
+var parse_number = /^-?\d+(?:\.\d*)?(?:e[+\-]?\d+)?$/i;
+
+var doubled_words = /([A-Za-z\u00C0-\u1FFF\u2800-\uFFFD]+)\s+\1/gi;
+
+var parse_ASCII = /[!-\/:-@\[-`{-~]/; //由32个ASCII的特殊字符组成的集合
