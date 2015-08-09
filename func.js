@@ -154,4 +154,3 @@ var doubled_words = /([A-Za-z\u00C0-\u1FFF\u2800-\uFFFD]+)\s+\1/gi;
 
 var parse_ASCII = /[!-\/:-@\[-`{-~]/; //由32个ASCII的特殊字符组成的集合
 
-var test1, test2, test3;
